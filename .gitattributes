@@ -1,2 +1,9 @@
+# Keep your existing line-ending rules
 /mvnw text eol=lf
 *.cmd text eol=crlf
+
+# Force GitHub Linguist to detect backend source files
+*.java linguist-detectable=true
+*.xml linguist-detectable=true
+*.yml linguist-detectable=true
+*.properties linguist-detectable=true
