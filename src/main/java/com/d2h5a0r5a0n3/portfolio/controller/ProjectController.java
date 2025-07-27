@@ -32,17 +32,17 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Project project) {
+    public ResponseEntity<Project> create(@RequestBody Project project) {
         return ResponseEntity.ok(service.create(project));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Project project) {
+    public ResponseEntity<Project> update(@PathVariable Long id, @RequestBody Project project) {
         return ResponseEntity.ok(service.update(id, project));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<String> delete(@PathVariable Long id, HttpServletRequest request) {
         try {
             service.delete(id);
         } catch (Exception e) {

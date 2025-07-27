@@ -2,6 +2,7 @@ package com.d2h5a0r5a0n3.portfolio.service;
 
 import com.d2h5a0r5a0n3.portfolio.model.Experience;
 import com.d2h5a0r5a0n3.portfolio.repository.ExperienceRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,10 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ExperienceService {
-
-    @Autowired
-    private ExperienceRepository repository;
+    private final ExperienceRepository repository;
 
     public List<Experience> getAll() {
         return repository.findAll();

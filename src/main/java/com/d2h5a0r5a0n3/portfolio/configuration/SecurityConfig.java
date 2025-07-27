@@ -1,5 +1,7 @@
 package com.d2h5a0r5a0n3.portfolio.configuration;
 
+import com.d2h5a0r5a0n3.portfolio.util.UrlApiUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +23,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+@Slf4j
 public class SecurityConfig {
     @Value("${admin.password}")
-    private String password;
+    private String adminPassword;
+
+    @Value("${api.frontend.url}")
+    public String apiFrontend;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -34,8 +40,8 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
         UserDetails adminUser = User.builder()
                 .username("Admin")
-                .password(encoder.encode(password))
-                .roles("ADMIN")
+                .password(encoder.encode(adminPassword))
+                .roles(UrlApiUtil.API_ADMIN)
                 .build();
 
         return new InMemoryUserDetailsManager(adminUser);
@@ -47,17 +53,20 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/api/otp/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/api/contact/send").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/projects", "/api/projects/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/experiences", "/api/experiences/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/login", "/api/logout").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/session/status", "/api/is-admin").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/projects", "/api/experiences").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/projects/**", "/api/experiences/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/projects/**", "/api/experiences/**").hasRole("ADMIN")
+                        .requestMatchers("/api/resumes","/api/resumes/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/resumes/upload").permitAll()
+                        .requestMatchers(HttpMethod.POST, UrlApiUtil.API_CONTACT).permitAll()
+                        .requestMatchers(HttpMethod.GET, UrlApiUtil.API_PROJECT, UrlApiUtil.API_PROJECTS).permitAll()
+                        .requestMatchers(HttpMethod.GET, UrlApiUtil.API_EDUCATION, UrlApiUtil.API_EDUCATIONS).permitAll()
+                        .requestMatchers(HttpMethod.GET, UrlApiUtil.API_EXPERIENCE, UrlApiUtil.API_EXPERIENCES).permitAll()
+                        .requestMatchers(HttpMethod.POST, UrlApiUtil.API_LOGIN, UrlApiUtil.API_LOGOUT).permitAll()
+                        .requestMatchers(HttpMethod.GET, UrlApiUtil.API_SESSION_STATUS, UrlApiUtil.API_IS_ADMIN).permitAll()
+                        .requestMatchers(HttpMethod.POST, UrlApiUtil.API_PROJECT, UrlApiUtil.API_EXPERIENCE, UrlApiUtil.API_EDUCATION).hasRole(UrlApiUtil.API_ADMIN)
+                        .requestMatchers(HttpMethod.PUT, UrlApiUtil.API_PROJECTS, UrlApiUtil.API_EXPERIENCES, UrlApiUtil.API_EDUCATIONS).hasRole(UrlApiUtil.API_ADMIN)
+                        .requestMatchers(HttpMethod.DELETE, UrlApiUtil.API_PROJECTS, UrlApiUtil.API_EXPERIENCES, UrlApiUtil.API_EDUCATIONS).hasRole(UrlApiUtil.API_ADMIN)
                         .anyRequest().authenticated()
                 )
+                .headers(headers -> headers.frameOptions(frameOptionsConfig -> frameOptionsConfig.disable()))
                 .formLogin(form -> form.disable())
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .logout(logout -> logout.logoutSuccessUrl("/"));

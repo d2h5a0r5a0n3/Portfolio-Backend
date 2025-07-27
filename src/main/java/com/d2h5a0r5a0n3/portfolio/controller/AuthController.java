@@ -1,6 +1,6 @@
 package com.d2h5a0r5a0n3.portfolio.controller;
 
-import com.d2h5a0r5a0n3.portfolio.TwoFactorAuthentication.OTPUtil;
+import com.d2h5a0r5a0n3.portfolio.twofactor.authentication.OtpUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid OTP format");
             }
             String sharedSecret = "4OCBCSMUUK6VLR3I";
-            boolean otpValid = OTPUtil.verifyCode(sharedSecret, otpCode);
+            boolean otpValid = OtpUtil.verifyCode(sharedSecret, otpCode);
             if (!otpValid) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid OTP");
             }

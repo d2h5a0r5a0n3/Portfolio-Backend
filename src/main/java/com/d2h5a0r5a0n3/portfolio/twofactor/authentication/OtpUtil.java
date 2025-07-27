@@ -1,14 +1,18 @@
-package com.d2h5a0r5a0n3.portfolio.TwoFactorAuthentication;
+package com.d2h5a0r5a0n3.portfolio.twofactor.authentication;
 
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
 
-public class OTPUtil {
+public class OtpUtil {
+
+    private OtpUtil() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
 
     private static final GoogleAuthenticator gAuth = new GoogleAuthenticator();
 
-    // Returns both secret key and QR URL for scanning
     public static GoogleAuthenticatorKey generateCredentials() {
         return gAuth.createCredentials();
     }

@@ -4,7 +4,7 @@ import com.d2h5a0r5a0n3.portfolio.model.Experience;
 import com.d2h5a0r5a0n3.portfolio.model.JobType;
 import com.d2h5a0r5a0n3.portfolio.service.ExperienceService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/experiences")
+@RequiredArgsConstructor
 public class ExperienceController {
 
-    @Autowired
-    private ExperienceService experienceService;
+    private final ExperienceService experienceService;
 
     @GetMapping
     public ResponseEntity<List<Experience>> getAll() {

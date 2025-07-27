@@ -1,7 +1,9 @@
 package com.d2h5a0r5a0n3.portfolio.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,17 +16,14 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Experience {
+public class Education {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank
-    private String role;
-    private String company;
-    @Enumerated(EnumType.STRING)
-    private JobType jobType;
+    private String institution;
+    private String degree;
+    private String fieldOfStudy;
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
-    private String location;
 }

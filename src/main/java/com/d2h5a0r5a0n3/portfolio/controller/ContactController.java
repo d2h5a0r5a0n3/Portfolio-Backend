@@ -32,12 +32,3 @@ public class ContactController {
     }
 
 }
-//{
-//        "query": "query recentAcSubmissions($username: String!) { recentAcSubmissionList(username: $username) { id title titleSlug timestamp } }",
-//        "variables": {
-//        "username": "dharaneshwarkalavena"
-//        }
-//        }
-//
-//
-//https://leetcode.com/graphql
