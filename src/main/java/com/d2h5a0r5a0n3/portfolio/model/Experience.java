@@ -1,5 +1,6 @@
 package com.d2h5a0r5a0n3.portfolio.model;
 
+import com.d2h5a0r5a0n3.portfolio.enums.JobType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

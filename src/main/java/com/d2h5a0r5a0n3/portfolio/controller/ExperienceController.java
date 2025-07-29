@@ -1,7 +1,7 @@
 package com.d2h5a0r5a0n3.portfolio.controller;
 
 import com.d2h5a0r5a0n3.portfolio.model.Experience;
-import com.d2h5a0r5a0n3.portfolio.model.JobType;
+import com.d2h5a0r5a0n3.portfolio.enums.JobType;
 import com.d2h5a0r5a0n3.portfolio.service.ExperienceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
