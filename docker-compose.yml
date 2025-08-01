@@ -10,7 +10,7 @@ services:
       MYSQL_USER: portfolio_user
       MYSQL_PASSWORD: portfolio_pass
     ports:
-      - "3306:3306"
+      - "3999:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
