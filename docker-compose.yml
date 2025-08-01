@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: portfolio-mysql
+  mariadb:
+    image: mariadb:10.11
+    container_name: portfolio-mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: portfolio
-      MYSQL_USER: portfolio_user
-      MYSQL_PASSWORD: portfolio_pass
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: portfolio
+      MARIADB_USER: portfolio_user
+      MARIADB_PASSWORD: portfolio_pass
     ports:
       - "3999:3306"
     volumes:
@@ -19,13 +19,13 @@ services:
     build: .
     container_name: portfolio-backend
     depends_on:
-      - mysql
+      - mariadb
     ports:
       - "9091:9091"
     env_file:
       - .env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/portfolio
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/portfolio
       SPRING_DATASOURCE_USERNAME: portfolio_user
       SPRING_DATASOURCE_PASSWORD: portfolio_pass
       ADMIN_SESSION_PASSWORD: ${ADMIN_SESSION_PASSWORD}

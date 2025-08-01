@@ -39,7 +39,7 @@ pipeline {
         
         stage('Docker Build') {
             steps {
-                echo '🐳 Building Docker image with MySQL driver...'
+                echo '🐳 Building Docker image with MariaDB driver...'
                 bat 'docker build --no-cache -t portfolio-backend .'
             }
         }
@@ -56,14 +56,14 @@ pipeline {
                 bat 'docker-compose down -v'
                 bat 'docker rmi portfolio-backend || echo "Image not found"'
                 
-                echo '🐳 Starting MySQL first...'
-                bat 'docker-compose up -d mysql'
+                echo '🐳 Starting MariaDB first...'
+                bat 'docker-compose up -d mariadb'
                 
-                echo '⏳ Waiting for MySQL to be ready...'
+                echo '⏳ Waiting for MariaDB to be ready...'
                 script {
                     retry(12) {
                         sleep time: 10, unit: 'SECONDS'
-                        bat 'docker exec portfolio-mysql mysqladmin ping -h localhost -u root -proot --silent'
+                        bat 'docker exec portfolio-mariadb mysqladmin ping -h localhost -u root -proot --silent'
                     }
                 }
                 
