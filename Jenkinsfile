@@ -12,19 +12,31 @@ pipeline {
         
         stage('Build') {
             steps {
-                bat 'mvn clean compile'
+                bat '''
+                    set JAVA_HOME=C:\Java\java-21\jdk
+                    set PATH=%JAVA_HOME%\bin;C:\Program Files\Apache\Maven\apache-maven-3.9.9\bin;%PATH%
+                    mvn clean compile
+                '''
             }
         }
         
         stage('Test') {
             steps {
-                bat 'mvn test'
+                bat '''
+                    set JAVA_HOME=C:\Java\java-21\jdk
+                    set PATH=%JAVA_HOME%\bin;C:\Program Files\Apache\Maven\apache-maven-3.9.9\bin;%PATH%
+                    mvn test
+                '''
             }
         }
         
         stage('Package') {
             steps {
-                bat 'mvn package -DskipTests'
+                bat '''
+                    set JAVA_HOME=C:\Java\java-21\jdk
+                    set PATH=%JAVA_HOME%\bin;C:\Program Files\Apache\Maven\apache-maven-3.9.9\bin;%PATH%
+                    mvn package -DskipTests
+                '''
             }
         }
         
