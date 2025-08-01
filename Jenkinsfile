@@ -1,7 +1,12 @@
 pipeline {
     agent any
     
-
+    environment {
+        JAVA_HOME = 'C:\\Java\\java-21\\jdk'
+        PATH = "${JAVA_HOME}\\bin;C:\\Program Files\\Apache\\Maven\\apache-maven-3.9.9\\bin;${env.PATH}"
+        MAVEN_OPTS = '-Dmaven.repo.local=C:\\Users\\Dharaneshwar\\.m2\\repository'
+        BACKEND_PORT = '9091'
+    }
     
     stages {
         stage('Checkout') {
@@ -10,33 +15,17 @@ pipeline {
             }
         }
         
-        stage('Build') {
+        stage('Prepare Dependencies') {
             steps {
-                bat """
-                    set JAVA_HOME=C:\\Java\\java-21\\jdk
-                    set PATH=%JAVA_HOME%\\bin;C:\\Program Files\\Apache\\Maven\\apache-maven-3.9.9\\bin;%PATH%
-                    mvn clean compile
-                """
+                echo '🔧 Downloading Maven dependencies...'
+                bat 'mvn dependency:go-offline'
             }
         }
         
-        stage('Test') {
+        stage('Build Backend') {
             steps {
-                bat """
-                    set JAVA_HOME=C:\\Java\\java-21\\jdk
-                    set PATH=%JAVA_HOME%\\bin;C:\\Program Files\\Apache\\Maven\\apache-maven-3.9.9\\bin;%PATH%
-                    mvn test
-                """
-            }
-        }
-        
-        stage('Package') {
-            steps {
-                bat """
-                    set JAVA_HOME=C:\\Java\\java-21\\jdk
-                    set PATH=%JAVA_HOME%\\bin;C:\\Program Files\\Apache\\Maven\\apache-maven-3.9.9\\bin;%PATH%
-                    mvn package -DskipTests
-                """
+                echo '🏗️ Building Spring Boot Application...'
+                bat 'mvn clean install -DskipTests -o'
             }
         }
         
@@ -52,15 +41,46 @@ pipeline {
             }
         }
         
-        stage('Deploy') {
+        stage('Deploy with Health Check') {
             steps {
-                bat 'docker-compose down'
-                bat 'docker-compose up -d'
+                echo '🐳 Starting MySQL first...'
+                bat 'docker-compose down -v'
+                bat 'docker-compose up -d mysql'
+                
+                echo '⏳ Waiting for MySQL to be ready...'
+                script {
+                    retry(12) {
+                        sleep time: 10, unit: 'SECONDS'
+                        bat 'docker exec portfolio-mysql mysqladmin ping -h localhost -u root -proot --silent'
+                    }
+                }
+                
+                echo '🚀 Starting backend service...'
+                bat 'docker-compose up -d backend'
+            }
+        }
+        
+        stage('Verify Backend') {
+            steps {
+                echo '🔍 Waiting for backend to become healthy...'
+                script {
+                    retry(10) {
+                        sleep time: 15, unit: 'SECONDS'
+                        bat "curl --fail http://localhost:${BACKEND_PORT}/actuator/health || exit 0"
+                    }
+                }
             }
         }
     }
     
     post {
+        success {
+            echo '✅✅✅ Portfolio Backend deployed successfully!!!'
+        }
+        failure {
+            echo '❌❌❌ Portfolio Backend deployment failed!!!'
+            bat 'docker-compose logs'
+        }
         always {
             cleanWs()
         }
