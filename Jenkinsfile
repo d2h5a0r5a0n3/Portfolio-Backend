@@ -39,7 +39,8 @@ pipeline {
         
         stage('Docker Build') {
             steps {
-                bat 'docker build -t portfolio-backend .'
+                echo '🐳 Building Docker image with MySQL driver...'
+                bat 'docker build --no-cache -t portfolio-backend .'
             }
         }
         
@@ -51,8 +52,11 @@ pipeline {
         
         stage('Deploy with Health Check') {
             steps {
-                echo '🐳 Starting MySQL first...'
+                echo '🧹 Cleaning up old containers and images...'
                 bat 'docker-compose down -v'
+                bat 'docker rmi portfolio-backend || echo "Image not found"'
+                
+                echo '🐳 Starting MySQL first...'
                 bat 'docker-compose up -d mysql'
                 
                 echo '⏳ Waiting for MySQL to be ready...'
