@@ -25,8 +25,14 @@ services:
       - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/portfolio
-      DB_USERNAME: portfolio_user
-      DB_PASSWORD: portfolio_pass
+      SPRING_DATASOURCE_USERNAME: portfolio_user
+      SPRING_DATASOURCE_PASSWORD: portfolio_pass
+      ADMIN_SESSION_PASSWORD: ${ADMIN_SESSION_PASSWORD}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      OTP_SECRET: ${OTP_SECRET}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      FRONTEND_URL: ${FRONTEND_URL}
 
 volumes:
   mysql_data:
