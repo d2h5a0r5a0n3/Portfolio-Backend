@@ -17,8 +17,16 @@ pipeline {
         
         stage('Prepare Dependencies') {
             steps {
-                echo '🔧 Downloading Maven dependencies...'
-                bat 'mvn dependency:go-offline'
+                echo '🔧 Checking Maven dependencies...'
+                script {
+                    def repoExists = fileExists('C:\\Users\\Dharaneshwar\\.m2\\repository')
+                    if (!repoExists) {
+                        echo '📥 Downloading Maven dependencies for first time...'
+                        bat 'mvn dependency:go-offline'
+                    } else {
+                        echo '✅ Using existing Maven dependencies from cache'
+                    }
+                }
             }
         }
         
