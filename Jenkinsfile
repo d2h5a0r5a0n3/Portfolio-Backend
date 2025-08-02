@@ -120,17 +120,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        success {
-            echo '✅✅✅ Portfolio Backend deployed successfully!!!'
-        }
-        failure {
-            echo '❌❌❌ Portfolio Backend deployment failed!!!'
-            echo 'Check Jenkins console output for error details'
-        }
-        always {
-            cleanWs()
-        }
-    }
 }
