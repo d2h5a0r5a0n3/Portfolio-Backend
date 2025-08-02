@@ -1,11 +1,14 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'JDK21'
+        maven 'Maven'
+    }
+
     environment {
-        JAVA_HOME = 'C:\\Java\\java-21\\jdk'
-        PATH = "${JAVA_HOME}\\bin;C:\\Program Files\\Apache\\Maven\\apache-maven-3.9.9\\bin;${env.PATH}"
-        MAVEN_OPTS = '-Dmaven.repo.local=C:\\Users\\Dharaneshwar\\.m2\\repository'
         BACKEND_PORT = '9091'
+        MAVEN_OPTS = '-Dmaven.repo.local=C:\\Users\\Dharaneshwar\\.m2\\repository'
     }
 
     stages {
@@ -21,7 +24,7 @@ pipeline {
                 script {
                     def repoExists = fileExists('C:\\Users\\Dharaneshwar\\.m2\\repository')
                     if (!repoExists) {
-                        echo '📥 Downloading Maven dependencies for first time...'
+                        echo '📥 Downloading Maven dependencies for the first time...'
                         bat 'mvn dependency:go-offline'
                     } else {
                         echo '✅ Using existing Maven dependencies from cache'
@@ -52,23 +55,43 @@ pipeline {
 
         stage('Deploy with Health Check') {
             steps {
-                echo '🧹 Cleaning up old containers and images...'
-                bat 'docker-compose down -v'
-                bat 'docker rmi portfolio-backend || echo "Image not found"'
-
-                echo '🐳 Starting MariaDB first...'
-                bat 'docker-compose up -d mariadb'
-
-                echo '⏳ Waiting for MariaDB to be ready...'
                 script {
+                    echo '🧹 Cleaning up any existing containers and images...'
+
+                    // Stop containers if running
+                    bat '''
+                        docker ps -q --filter "name=portfolio" | findstr . >nul
+                        if %ERRORLEVEL% EQU 0 (
+                            echo Stopping running portfolio containers...
+                            docker-compose down -v
+                        ) else (
+                            echo No running containers found.
+                        )
+                    '''
+
+                    // Remove old image if it exists
+                    bat '''
+                        docker images -q portfolio-backend | findstr . >nul
+                        if %ERRORLEVEL% EQU 0 (
+                            echo Removing old portfolio-backend image...
+                            docker rmi portfolio-backend
+                        ) else (
+                            echo No old portfolio-backend image to remove.
+                        )
+                    '''
+
+                    echo '🐳 Starting MariaDB first...'
+                    bat 'docker-compose up -d mariadb'
+
+                    echo '⏳ Waiting for MariaDB to be ready...'
                     retry(12) {
                         sleep time: 10, unit: 'SECONDS'
                         bat 'docker exec portfolio-mariadb mysqladmin ping -h localhost -u root -proot --silent'
                     }
-                }
 
-                echo '🚀 Starting backend service...'
-                bat 'docker-compose up -d backend'
+                    echo '🚀 Starting backend service...'
+                    bat 'docker-compose up -d backend'
+                }
             }
         }
 
@@ -90,7 +113,7 @@ pipeline {
 
                     if (!healthCheckPassed) {
                         echo '⚠️ Health check failed but continuing...'
-                        // Optional: Fail the build intentionally
+                        // Uncomment to fail the build:
                         // error '❌ Backend health check failed after multiple attempts.'
                     }
                 }
