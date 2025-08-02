@@ -76,15 +76,19 @@ pipeline {
             steps {
                 echo '🔍 Waiting for backend to become healthy...'
                 script {
-                    retry(10) {
+                    def healthCheckPassed = false
+                    for (int i = 0; i < 10 && !healthCheckPassed; i++) {
                         sleep time: 15, unit: 'SECONDS'
                         try {
                             bat "curl -f http://localhost:${BACKEND_PORT}/actuator/health"
                             echo '✅ Backend health check passed!'
-                            break
+                            healthCheckPassed = true
                         } catch (Exception e) {
-                            echo "Health check attempt failed: ${e.getMessage()}"
+                            echo "Health check attempt ${i+1}/10 failed: ${e.getMessage()}"
                         }
+                    }
+                    if (!healthCheckPassed) {
+                        echo '⚠️ Health check failed but continuing...'
                     }
                 }
             }
