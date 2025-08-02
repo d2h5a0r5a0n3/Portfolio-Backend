@@ -59,26 +59,10 @@ pipeline {
                     echo '🧹 Cleaning up any existing containers and images...'
 
                     // Stop containers if running
-                    bat '''
-                        docker ps -q --filter "name=portfolio" | findstr . >nul
-                        if %ERRORLEVEL% EQU 0 (
-                            echo Stopping running portfolio containers...
-                            docker-compose down -v
-                        ) else (
-                            echo No running containers found.
-                        )
-                    '''
-
+                    bat 'docker-compose down -v || echo "No containers to stop"'
+                    
                     // Remove old image if it exists
-                    bat '''
-                        docker images -q portfolio-backend | findstr . >nul
-                        if %ERRORLEVEL% EQU 0 (
-                            echo Removing old portfolio-backend image...
-                            docker rmi portfolio-backend
-                        ) else (
-                            echo No old portfolio-backend image to remove.
-                        )
-                    '''
+                    bat 'docker rmi portfolio-backend || echo "No old image to remove"'
 
                     echo '🐳 Starting MariaDB first...'
                     bat 'docker-compose up -d mariadb'
@@ -118,6 +102,19 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+    
+    post {
+        success {
+            echo '✅✅✅ Portfolio Backend deployed successfully!!!'
+        }
+        failure {
+            echo '❌❌❌ Portfolio Backend deployment failed!!!'
+            echo 'Check Jenkins console output for error details'
+        }
+        always {
+            cleanWs()
         }
     }
 }
