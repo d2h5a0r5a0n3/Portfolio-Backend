@@ -78,7 +78,13 @@ pipeline {
                 script {
                     retry(10) {
                         sleep time: 15, unit: 'SECONDS'
-                        bat "curl --fail http://localhost:${BACKEND_PORT}/actuator/health || exit 0"
+                        try {
+                            bat "curl -f http://localhost:${BACKEND_PORT}/actuator/health"
+                            echo '✅ Backend health check passed!'
+                            break
+                        } catch (Exception e) {
+                            echo "Health check attempt failed: ${e.getMessage()}"
+                        }
                     }
                 }
             }
