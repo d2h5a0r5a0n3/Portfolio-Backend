@@ -91,7 +91,7 @@ pipeline {
         }
         failure {
             echo '❌❌❌ Portfolio Backend deployment failed!!!'
-            bat 'docker-compose logs'
+            echo 'Check Jenkins console output for error details'
         }
         always {
             cleanWs()
