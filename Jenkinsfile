@@ -1,20 +1,20 @@
 pipeline {
     agent any
-    
+
     environment {
         JAVA_HOME = 'C:\\Java\\java-21\\jdk'
         PATH = "${JAVA_HOME}\\bin;C:\\Program Files\\Apache\\Maven\\apache-maven-3.9.9\\bin;${env.PATH}"
         MAVEN_OPTS = '-Dmaven.repo.local=C:\\Users\\Dharaneshwar\\.m2\\repository'
         BACKEND_PORT = '9091'
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/d2h5a0r5a0n3/Portfolio-Backend.git', credentialsId: 'github-credentials'
             }
         }
-        
+
         stage('Prepare Dependencies') {
             steps {
                 echo '🔧 Checking Maven dependencies...'
@@ -29,36 +29,36 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Build Backend') {
             steps {
                 echo '🏗️ Building Spring Boot Application...'
                 bat 'mvn clean install -DskipTests -o'
             }
         }
-        
+
         stage('Docker Build') {
             steps {
                 echo '🐳 Building Docker image with MariaDB driver...'
                 bat 'docker build --no-cache -t portfolio-backend .'
             }
         }
-        
+
         stage('Setup Environment') {
             steps {
                 bat 'copy "C:\\ProgramData\\Jenkins\\.jenkins\\secrets\\.env" .env'
             }
         }
-        
+
         stage('Deploy with Health Check') {
             steps {
                 echo '🧹 Cleaning up old containers and images...'
                 bat 'docker-compose down -v'
                 bat 'docker rmi portfolio-backend || echo "Image not found"'
-                
+
                 echo '🐳 Starting MariaDB first...'
                 bat 'docker-compose up -d mariadb'
-                
+
                 echo '⏳ Waiting for MariaDB to be ready...'
                 script {
                     retry(12) {
@@ -66,12 +66,12 @@ pipeline {
                         bat 'docker exec portfolio-mariadb mysqladmin ping -h localhost -u root -proot --silent'
                     }
                 }
-                
+
                 echo '🚀 Starting backend service...'
                 bat 'docker-compose up -d backend'
             }
         }
-        
+
         stage('Verify Backend') {
             steps {
                 echo '🔍 Waiting for backend to become healthy...'
@@ -79,22 +79,25 @@ pipeline {
                     def healthCheckPassed = false
                     for (int i = 0; i < 10 && !healthCheckPassed; i++) {
                         sleep time: 15, unit: 'SECONDS'
-                        try {
-                            bat "curl -f http://localhost:${BACKEND_PORT}/actuator/health"
+                        def status = bat(script: "curl -f http://localhost:${BACKEND_PORT}/actuator/health", returnStatus: true)
+                        if (status == 0) {
                             echo '✅ Backend health check passed!'
                             healthCheckPassed = true
-                        } catch (Exception e) {
-                            echo "Health check attempt ${i+1}/10 failed: ${e.getMessage()}"
+                        } else {
+                            echo "Health check attempt ${i + 1}/10 failed (curl exit code: ${status})"
                         }
                     }
+
                     if (!healthCheckPassed) {
                         echo '⚠️ Health check failed but continuing...'
+                        // Optional: Fail the build intentionally
+                        // error '❌ Backend health check failed after multiple attempts.'
                     }
                 }
             }
         }
     }
-    
+
     post {
         success {
             echo '✅✅✅ Portfolio Backend deployed successfully!!!'
