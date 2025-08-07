@@ -42,7 +42,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                echo '🐳 Building Docker image with MariaDB driver...'
+                echo '🐳 Building Docker image with PostgreSQL driver...'
                 bat 'docker build --no-cache -t portfolio-backend .'
             }
         }
@@ -64,13 +64,13 @@ pipeline {
                     // Remove old image if it exists
                     bat 'docker rmi portfolio-backend || echo "No old image to remove"'
 
-                    echo '🐳 Starting MariaDB first...'
-                    bat 'docker-compose up -d mariadb'
+                    echo '🐳 Starting PostgreSQL first...'
+                    bat 'docker-compose up -d postgres'
 
-                    echo '⏳ Waiting for MariaDB to be ready...'
+                    echo '⏳ Waiting for PostgreSQL to be ready...'
                     retry(12) {
                         sleep time: 10, unit: 'SECONDS'
-                        bat 'docker exec portfolio-mariadb mysqladmin ping -h localhost -u root -proot --silent'
+                        bat 'docker exec portfolio-postgres pg_isready -U portfolio_user'
                     }
 
                     echo '🚀 Starting backend service...'

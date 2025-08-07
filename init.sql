@@ -1,7 +1,21 @@
-CREATE DATABASE IF NOT EXISTS portfolio;
-USE portfolio;
+-- PostgreSQL initialization script
+-- Database 'portfolio' is already created by POSTGRES_DB environment variable
 
 -- Create user if not exists
-CREATE USER IF NOT EXISTS 'portfolio_user'@'%' IDENTIFIED BY 'portfolio_pass';
-GRANT ALL PRIVILEGES ON portfolio.* TO 'portfolio_user'@'%';
-FLUSH PRIVILEGES;
+DO
+$$
+BEGIN
+   IF NOT EXISTS (
+      SELECT FROM pg_catalog.pg_roles
+      WHERE  rolname = 'portfolio_user') THEN
+
+      CREATE USER portfolio_user WITH PASSWORD 'postgres';
+   END IF;
+END
+$$;
+
+-- Grant privileges
+GRANT ALL PRIVILEGES ON DATABASE portfolio TO portfolio_user;
+GRANT ALL ON SCHEMA public TO portfolio_user;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO portfolio_user;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO portfolio_user;

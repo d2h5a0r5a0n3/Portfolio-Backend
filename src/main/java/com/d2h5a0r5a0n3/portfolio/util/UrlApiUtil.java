@@ -1,6 +1,5 @@
 package com.d2h5a0r5a0n3.portfolio.util;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
