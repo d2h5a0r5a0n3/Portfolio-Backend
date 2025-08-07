@@ -6,8 +6,8 @@ services:
     container_name: portfolio-postgres
     environment:
       POSTGRES_DB: portfolio
-      POSTGRES_USER: portfolio_user
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1264
     ports:
       - "5432:5432"
     volumes:
@@ -26,7 +26,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/portfolio
       SPRING_DATASOURCE_USERNAME: portfolio_user
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_PASSWORD: 1264
       ADMIN_SESSION_PASSWORD: ${ADMIN_SESSION_PASSWORD}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       OTP_SECRET: ${OTP_SECRET}
