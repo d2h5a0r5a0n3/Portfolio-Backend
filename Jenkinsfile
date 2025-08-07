@@ -70,7 +70,7 @@ pipeline {
                     echo '⏳ Waiting for PostgreSQL to be ready...'
                     retry(12) {
                         sleep time: 10, unit: 'SECONDS'
-                        bat 'docker exec portfolio-postgres pg_isready -U portfolio_user'
+                        bat 'docker exec portfolio-postgres pg_isready -U postgres'
                     }
 
                     echo '🚀 Starting backend service...'
